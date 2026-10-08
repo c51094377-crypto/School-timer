@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -22,31 +23,235 @@ body {
 }
 
 .container {
-  width: min(92%, 520px);
+  width: min(94%, 560px);
   text-align: center;
 }
 
 h1 {
   font-size: 1.5rem;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .timer {
   background: #1f2937;
   border-radius: 24px;
-  padding: 30px 20px;
+  padding: 26px 18px;
 }
 
-.label {
-  color: #9ca3af;
-  margin-bottom: 8px;
-}
+/* =========================
+   数字本体
+========================= */
 
 #remaining {
   font-size: clamp(4rem, 18vw, 7rem);
   font-weight: 800;
   line-height: 1;
   font-variant-numeric: tabular-nums;
+  min-height: 1.1em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* =========================
+   ① 電光掲示板
+========================= */
+
+.display-led {
+  font-family: monospace;
+  letter-spacing: 0.08em;
+  text-shadow:
+    0 0 4px currentColor,
+    0 0 12px currentColor;
+}
+
+
+/* =========================
+   ② デジタルタイマー
+========================= */
+
+.display-digital {
+  font-family: "Courier New", monospace;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em;
+}
+
+
+/* =========================
+   ③ 計器タイマー
+========================= */
+
+.gauge {
+  position: relative;
+  width: min(72vw, 320px);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border: 8px solid #4b5563;
+  border-radius: 50%;
+  background: #111827;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.gauge::before {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border: 2px solid #6b7280;
+  border-radius: 50%;
+}
+
+.gauge-value {
+  position: relative;
+  z-index: 3;
+  font-family: monospace;
+  font-size: clamp(2.7rem, 12vw, 5rem);
+  font-weight: 800;
+}
+
+.gauge-needle {
+  position: absolute;
+  width: 4px;
+  height: 39%;
+  background: #f87171;
+  bottom: 50%;
+  left: calc(50% - 2px);
+  transform-origin: bottom center;
+  transform: rotate(-135deg);
+  transition: transform 0.2s linear;
+  z-index: 2;
+}
+
+.gauge-center {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #d1d5db;
+  z-index: 4;
+}
+
+
+/* =========================
+   ④ 前に倒れる数字
+========================= */
+
+.display-flip {
+  perspective: 700px;
+}
+
+.flip-number {
+  display: inline-block;
+  transform-origin: center bottom;
+  animation: forwardFall 0.35s ease-out;
+}
+
+@keyframes forwardFall {
+  0% {
+    transform: rotateX(75deg);
+    opacity: 0.2;
+  }
+
+  100% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+}
+
+
+/* =========================
+   ⑤ パタパタ
+========================= */
+
+.flap-display {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  perspective: 900px;
+}
+
+.flap-digit {
+  position: relative;
+  width: 0.65em;
+  height: 1em;
+  font-family: monospace;
+  font-size: clamp(4rem, 18vw, 7rem);
+  font-weight: 800;
+  line-height: 1;
+  background: #111827;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.flap-top,
+.flap-bottom {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  overflow: hidden;
+  background: #374151;
+  display: flex;
+  justify-content: center;
+}
+
+.flap-top {
+  top: 0;
+  align-items: flex-end;
+  transform-origin: center bottom;
+  z-index: 3;
+}
+
+.flap-bottom {
+  bottom: 0;
+  align-items: flex-start;
+  z-index: 1;
+}
+
+.flap-top span {
+  transform: translateY(50%);
+}
+
+.flap-bottom span {
+  transform: translateY(-50%);
+}
+
+.flap-line {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 3px;
+  background: #111827;
+  z-index: 5;
+}
+
+.flap-digit.animating .flap-top {
+  animation: flapDown 0.28s ease-in forwards;
+}
+
+@keyframes flapDown {
+  0% {
+    transform: rotateX(0deg);
+  }
+
+  100% {
+    transform: rotateX(-90deg);
+  }
+}
+
+
+/* =========================
+   共通UI
+========================= */
+
+.label {
+  color: #9ca3af;
+  margin-bottom: 8px;
 }
 
 #status {
@@ -75,18 +280,25 @@ h1 {
   font-size: 0.9rem;
 }
 
-.buttons {
-  display: flex;
-  gap: 12px;
-  margin-top: 25px;
+.choice-title {
+  text-align: left;
+  margin-top: 24px;
+  margin-bottom: 8px;
+  color: #d1d5db;
+  font-size: 0.9rem;
+}
+
+.animation-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
 button {
-  flex: 1;
-  min-height: 50px;
+  min-height: 48px;
   border: none;
   border-radius: 12px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: bold;
   cursor: pointer;
 }
@@ -101,20 +313,29 @@ button {
 }
 
 .start {
+  width: 100%;
   background: #16a34a;
-  color: white;
-}
-
-.reset {
-  background: #4b5563;
   color: white;
   margin-top: 12px;
 }
 
+.reset {
+  width: 100%;
+  background: #4b5563;
+  color: white;
+  margin-top: 10px;
+}
+
 .info {
   margin-top: 18px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #9ca3af;
+}
+
+@media (max-width: 400px) {
+  .animation-buttons {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 </head>
@@ -143,7 +364,14 @@ button {
       進捗 0%
     </div>
 
-    <div class="buttons">
+
+    <!-- 授業時間 -->
+
+    <div class="choice-title">
+      授業時間
+    </div>
+
+    <div class="animation-buttons">
 
       <button id="lesson50" class="lesson">
         50分
@@ -155,25 +383,54 @@ button {
 
     </div>
 
-    <div class="buttons">
 
-      <button id="start" class="start">
-        授業開始
+    <!-- 数字アニメーション -->
+
+    <div class="choice-title">
+      数字表示
+    </div>
+
+    <div class="animation-buttons">
+
+      <button id="animLed" class="lesson">
+        電光掲示板
+      </button>
+
+      <button id="animDigital" class="lesson">
+        デジタルタイマー
+      </button>
+
+      <button id="animGauge" class="lesson">
+        計器タイマー
+      </button>
+
+      <button id="animForward" class="lesson">
+        前に倒れる
+      </button>
+
+      <button id="animFlap" class="lesson">
+        パタパタ
       </button>
 
     </div>
+
+
+    <button id="start" class="start">
+      授業開始
+    </button>
 
     <button id="reset" class="reset">
       リセット
     </button>
 
     <div class="info">
-      電源OFF・ページを閉じた場合でも、再起動時に現在時刻から自動計算します。
+      電源OFF・ページを閉じても、再起動時に現在時刻から再計算します。
     </div>
 
   </div>
 
 </div>
+
 
 <script>
 
@@ -184,15 +441,26 @@ const percentText = document.getElementById("percent");
 
 const lesson50 = document.getElementById("lesson50");
 const lesson45 = document.getElementById("lesson45");
+
 const startButton = document.getElementById("start");
 const resetButton = document.getElementById("reset");
 
+const animButtons = {
+  led: document.getElementById("animLed"),
+  digital: document.getElementById("animDigital"),
+  gauge: document.getElementById("animGauge"),
+  forward: document.getElementById("animForward"),
+  flap: document.getElementById("animFlap")
+};
+
 let selectedMinutes = null;
+let selectedAnimation = "digital";
 let timer = null;
+let previousDisplay = "";
 
 
 /* =========================
-   授業時間選択
+   授業時間
 ========================= */
 
 lesson50.addEventListener("click", () => {
@@ -216,7 +484,243 @@ lesson45.addEventListener("click", () => {
 
 
 /* =========================
-   時刻計算
+   アニメーション選択
+========================= */
+
+Object.keys(animButtons).forEach(type => {
+
+  animButtons[type].addEventListener("click", () => {
+
+    selectedAnimation = type;
+
+    Object.values(animButtons).forEach(button => {
+      button.classList.remove("active");
+    });
+
+    animButtons[type].classList.add("active");
+
+    renderDisplay(
+      previousDisplay || "--:--",
+      true
+    );
+
+  });
+
+});
+
+
+/* =========================
+   パタパタ数字生成
+========================= */
+
+function createFlapDisplay(text) {
+
+  const wrapper = document.createElement("div");
+
+  wrapper.className = "flap-display";
+
+  for (const char of text) {
+
+    if (char === ":") {
+
+      const colon = document.createElement("div");
+
+      colon.style.fontSize = "clamp(3rem, 14vw, 5rem)";
+      colon.style.fontWeight = "800";
+      colon.textContent = ":";
+
+      wrapper.appendChild(colon);
+
+      continue;
+    }
+
+
+    const digit = document.createElement("div");
+
+    digit.className = "flap-digit";
+
+
+    const top = document.createElement("div");
+
+    top.className = "flap-top";
+
+
+    const topSpan = document.createElement("span");
+
+    topSpan.textContent = char;
+
+    top.appendChild(topSpan);
+
+
+    const bottom = document.createElement("div");
+
+    bottom.className = "flap-bottom";
+
+
+    const bottomSpan = document.createElement("span");
+
+    bottomSpan.textContent = char;
+
+    bottom.appendChild(bottomSpan);
+
+
+    const line = document.createElement("div");
+
+    line.className = "flap-line";
+
+
+    digit.appendChild(top);
+    digit.appendChild(bottom);
+    digit.appendChild(line);
+
+    wrapper.appendChild(digit);
+
+  }
+
+  return wrapper;
+}
+
+
+/* =========================
+   表示切り替え
+========================= */
+
+function renderDisplay(text, force = false) {
+
+  if (!force && text === previousDisplay) {
+    return;
+  }
+
+  previousDisplay = text;
+
+
+  /* 計器 */
+
+  if (selectedAnimation === "gauge") {
+
+    remaining.className = "gauge";
+
+    remaining.innerHTML = "";
+
+    const value = document.createElement("div");
+
+    value.className = "gauge-value";
+
+    value.textContent = text;
+
+    const needle = document.createElement("div");
+
+    needle.className = "gauge-needle";
+
+    const center = document.createElement("div");
+
+    center.className = "gauge-center";
+
+
+    let seconds = 0;
+
+    if (text !== "--:--") {
+
+      const parts = text.split(":");
+
+      if (parts.length === 2) {
+        seconds =
+          Number(parts[0]) * 60 +
+          Number(parts[1]);
+      }
+
+    }
+
+    const total =
+      Number(localStorage.getItem("classDuration") || 50) * 60;
+
+    const ratio =
+      Math.max(0, Math.min(1, seconds / total));
+
+    const angle =
+      -135 + (1 - ratio) * 270;
+
+    needle.style.transform =
+      "rotate(" + angle + "deg)";
+
+    remaining.appendChild(needle);
+    remaining.appendChild(center);
+    remaining.appendChild(value);
+
+    return;
+  }
+
+
+  /* パタパタ */
+
+  if (selectedAnimation === "flap") {
+
+    remaining.className = "";
+
+    const newDisplay =
+      createFlapDisplay(text);
+
+    remaining.replaceChildren(newDisplay);
+
+    requestAnimationFrame(() => {
+
+      newDisplay
+        .querySelectorAll(".flap-digit")
+        .forEach(digit => {
+
+          digit.classList.add("animating");
+
+        });
+
+    });
+
+    return;
+  }
+
+
+  /* 前に倒れる */
+
+  if (selectedAnimation === "forward") {
+
+    remaining.className =
+      "display-flip";
+
+    remaining.innerHTML =
+      '<span class="flip-number">' +
+      text +
+      '</span>';
+
+    return;
+  }
+
+
+  /* 電光掲示板 */
+
+  if (selectedAnimation === "led") {
+
+    remaining.className =
+      "display-led";
+
+    remaining.textContent =
+      text;
+
+    return;
+  }
+
+
+  /* デジタルタイマー */
+
+  remaining.className =
+    "display-digital";
+
+  remaining.textContent =
+    text;
+
+}
+
+
+/* =========================
+   タイマー
 ========================= */
 
 function updateTimer() {
@@ -227,9 +731,11 @@ function updateTimer() {
   const duration =
     Number(localStorage.getItem("classDuration"));
 
+
   if (!startTime || !duration) {
 
-    remaining.textContent = "--:--";
+    renderDisplay("--:--");
+
     statusText.textContent =
       "授業時間を選択してください";
 
@@ -250,18 +756,15 @@ function updateTimer() {
     endTime - now;
 
 
-  /* =========================
-     授業終了
-  ========================= */
-
   if (remainingMs <= 0) {
 
-    remaining.textContent = "00:00";
+    renderDisplay("00:00");
 
     statusText.textContent =
       "🎉 授業終了！";
 
-    progressBar.style.width = "100%";
+    progressBar.style.width =
+      "100%";
 
     percentText.textContent =
       "進捗 100%";
@@ -273,10 +776,6 @@ function updateTimer() {
   }
 
 
-  /* =========================
-     残り時間
-  ========================= */
-
   const totalSeconds =
     Math.ceil(remainingMs / 1000);
 
@@ -287,15 +786,16 @@ function updateTimer() {
     totalSeconds % 60;
 
 
-  remaining.textContent =
+  const display =
     String(minutes).padStart(2, "0")
     + ":"
     + String(seconds).padStart(2, "0");
 
 
-  /* =========================
-     進捗率
-  ========================= */
+  renderDisplay(display);
+
+
+  /* 進捗 */
 
   const elapsed =
     now - startTime;
@@ -316,9 +816,9 @@ function updateTimer() {
   percentText.textContent =
     "進捗 " + progress.toFixed(1) + "%";
 
-
   statusText.textContent =
     duration + "分授業";
+
 }
 
 
@@ -330,22 +830,18 @@ startButton.addEventListener("click", () => {
 
   if (!selectedMinutes) {
 
-    alert("45分または50分を選択してください。");
+    alert(
+      "45分または50分を選択してください。"
+    );
 
     return;
 
   }
 
 
-  const startTime = Date.now();
+  const startTime =
+    Date.now();
 
-
-  /*
-    現在時刻と授業時間を保存
-
-    Date.now()は1970年からの経過ミリ秒なので、
-    ページを閉じても時間そのものは失われない。
-  */
 
   localStorage.setItem(
     "classStartTime",
@@ -362,10 +858,8 @@ startButton.addEventListener("click", () => {
 
   updateTimer();
 
-  timer = setInterval(
-    updateTimer,
-    200
-  );
+  timer =
+    setInterval(updateTimer, 200);
 
 });
 
@@ -376,17 +870,25 @@ startButton.addEventListener("click", () => {
 
 resetButton.addEventListener("click", () => {
 
-  localStorage.removeItem("classStartTime");
-  localStorage.removeItem("classDuration");
+  localStorage.removeItem(
+    "classStartTime"
+  );
+
+  localStorage.removeItem(
+    "classDuration"
+  );
 
   clearInterval(timer);
 
-  remaining.textContent = "--:--";
+  previousDisplay = "";
+
+  renderDisplay("--:--", true);
 
   statusText.textContent =
     "授業時間を選択してください";
 
-  progressBar.style.width = "0%";
+  progressBar.style.width =
+    "0%";
 
   percentText.textContent =
     "進捗 0%";
@@ -395,19 +897,27 @@ resetButton.addEventListener("click", () => {
 
 
 /* =========================
-   ページを開いた時
+   復元
 ========================= */
 
 function restoreTimer() {
 
   const savedStart =
-    localStorage.getItem("classStartTime");
+    localStorage.getItem(
+      "classStartTime"
+    );
 
   const savedDuration =
-    localStorage.getItem("classDuration");
+    localStorage.getItem(
+      "classDuration"
+    );
 
 
   if (!savedStart || !savedDuration) {
+
+    animButtons.digital.classList.add("active");
+
+    renderDisplay("--:--", true);
 
     return;
 
@@ -419,35 +929,25 @@ function restoreTimer() {
 
 
   if (selectedMinutes === 50) {
-
     lesson50.classList.add("active");
-
   }
 
   if (selectedMinutes === 45) {
-
     lesson45.classList.add("active");
-
   }
 
 
-  /*
-    保存された開始時刻と
-    現在時刻を比較して再計算
-  */
-
   updateTimer();
 
-
-  timer = setInterval(
-    updateTimer,
-    200
-  );
+  timer =
+    setInterval(updateTimer, 200);
 
 }
 
 
-/* 起動 */
+/* 初期設定 */
+
+animButtons.digital.classList.add("active");
 
 restoreTimer();
 
@@ -455,3 +955,4 @@ restoreTimer();
 
 </body>
 </html>
+```
