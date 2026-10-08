@@ -13,13 +13,13 @@
 
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  min-height: 100vh;
   background: #111827;
   color: white;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
 }
 
 .container {
@@ -33,205 +33,186 @@ h1 {
 }
 
 .timer {
+  position: relative;
   background: #1f2937;
   border-radius: 24px;
-  padding: 26px 18px;
-}
-
-/* =========================
-   数字本体
-========================= */
-
-#remaining {
-  font-size: clamp(4rem, 18vw, 7rem);
-  font-weight: 800;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  min-height: 1.1em;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-
-/* =========================
-   ① 電光掲示板
-========================= */
-
-.display-led {
-  font-family: monospace;
-  letter-spacing: 0.08em;
-  text-shadow:
-    0 0 4px currentColor,
-    0 0 12px currentColor;
-}
-
-
-/* =========================
-   ② デジタルタイマー
-========================= */
-
-.display-digital {
-  font-family: "Courier New", monospace;
-  font-weight: 700 !important;
-  letter-spacing: 0.03em;
-}
-
-
-/* =========================
-   ③ 計器タイマー
-========================= */
-
-.gauge {
-  position: relative;
-  width: min(72vw, 320px);
-  aspect-ratio: 1;
-  margin: 0 auto;
-  border: 8px solid #4b5563;
-  border-radius: 50%;
-  background: #111827;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
+  padding: 28px 20px 70px;
   overflow: hidden;
 }
 
-.gauge::before {
-  content: "";
-  position: absolute;
-  inset: 12%;
-  border: 2px solid #6b7280;
-  border-radius: 50%;
+.label {
+  color: #9ca3af;
+  margin-bottom: 8px;
 }
 
-.gauge-value {
+/* =================================
+   共通数字
+================================= */
+
+#display {
+  height: 125px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.digits {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.digit {
   position: relative;
-  z-index: 3;
-  font-family: monospace;
-  font-size: clamp(2.7rem, 12vw, 5rem);
+  width: 70px;
+  height: 100px;
+  font-size: 78px;
+  font-weight: 800;
+  line-height: 100px;
+  perspective: 400px;
+}
+
+.colon {
+  width: 25px;
+  font-size: 65px;
   font-weight: 800;
 }
 
-.gauge-needle {
-  position: absolute;
-  width: 4px;
-  height: 39%;
-  background: #f87171;
-  bottom: 50%;
-  left: calc(50% - 2px);
-  transform-origin: bottom center;
-  transform: rotate(-135deg);
-  transition: transform 0.2s linear;
-  z-index: 2;
+
+/* =================================
+   1. 電光掲示板
+================================= */
+
+.led .digit {
+  color: #ff4d4d;
+  text-shadow:
+    0 0 5px #ff4d4d,
+    0 0 12px #ff4d4d;
+  font-family: monospace;
 }
 
-.gauge-center {
+.led .digit::after {
+  content: "";
   position: absolute;
-  width: 16px;
-  height: 16px;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 5px,
+    rgba(0,0,0,.18) 6px,
+    transparent 7px
+  );
+  pointer-events: none;
+}
+
+
+/* =================================
+   2. デジタルタイマー
+================================= */
+
+.digital .digit {
+  font-family: "Courier New", monospace;
+  background: #050505;
+  border: 2px solid #374151;
+  border-radius: 8px;
+  color: #f3f4f6;
+  box-shadow: inset 0 0 15px #000;
+}
+
+.digital .colon {
+  color: #f3f4f6;
+}
+
+
+/* =================================
+   3. 計器タイマー
+================================= */
+
+.gauge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gauge .digit {
+  width: 78px;
+  height: 78px;
+  line-height: 78px;
+  font-size: 55px;
   border-radius: 50%;
-  background: #d1d5db;
-  z-index: 4;
+  border: 4px solid #6b7280;
+  background: #111827;
+  box-shadow:
+    inset 0 0 0 5px #1f2937,
+    inset 0 0 20px #000;
+}
+
+.gauge .colon {
+  font-size: 45px;
 }
 
 
-/* =========================
-   ④ 前に倒れる数字
-========================= */
+/* =================================
+   4. 前に倒れる数字
+================================= */
 
-.display-flip {
-  perspective: 700px;
+.flip-front .digit {
+  transform-style: preserve-3d;
 }
 
-.flip-number {
-  display: inline-block;
-  transform-origin: center bottom;
-  animation: forwardFall 0.35s ease-out;
+.flip-front .digit.animate {
+  animation: frontFlip .55s ease-in-out;
 }
 
-@keyframes forwardFall {
+@keyframes frontFlip {
   0% {
-    transform: rotateX(75deg);
-    opacity: 0.2;
+    transform: rotateX(0deg);
+  }
+
+  45% {
+    transform: rotateX(-90deg);
   }
 
   100% {
     transform: rotateX(0deg);
-    opacity: 1;
   }
 }
 
 
-/* =========================
-   ⑤ パタパタ
-========================= */
+/* =================================
+   5. パタパタ
+================================= */
 
-.flap-display {
-  display: flex !important;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  perspective: 900px;
+.flap {
+  gap: 7px;
 }
 
-.flap-digit {
-  position: relative;
-  width: 0.65em;
-  height: 1em;
-  font-family: monospace;
-  font-size: clamp(4rem, 18vw, 7rem);
-  font-weight: 800;
-  line-height: 1;
-  background: #111827;
-  border-radius: 7px;
+.flap .digit {
+  width: 65px;
+  height: 96px;
+  line-height: 96px;
+  font-size: 70px;
+  background: #111;
+  border-radius: 5px;
   overflow: hidden;
+  box-shadow: 0 3px 8px #000;
 }
 
-.flap-top,
-.flap-bottom {
+.flap .digit::before {
+  content: "";
   position: absolute;
   left: 0;
-  width: 100%;
-  height: 50%;
-  overflow: hidden;
-  background: #374151;
-  display: flex;
-  justify-content: center;
-}
-
-.flap-top {
-  top: 0;
-  align-items: flex-end;
-  transform-origin: center bottom;
-  z-index: 3;
-}
-
-.flap-bottom {
-  bottom: 0;
-  align-items: flex-start;
-  z-index: 1;
-}
-
-.flap-top span {
-  transform: translateY(50%);
-}
-
-.flap-bottom span {
-  transform: translateY(-50%);
-}
-
-.flap-line {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 100%;
-  height: 3px;
-  background: #111827;
+  right: 0;
+  top: 48%;
+  height: 2px;
+  background: #000;
   z-index: 5;
 }
 
-.flap-digit.animating .flap-top {
-  animation: flapDown 0.28s ease-in forwards;
+.flap .digit.animate {
+  animation: flapDown .6s ease-in-out;
 }
 
 @keyframes flapDown {
@@ -239,25 +220,23 @@ h1 {
     transform: rotateX(0deg);
   }
 
+  45% {
+    transform: rotateX(-88deg);
+  }
+
+  50% {
+    transform: rotateX(-88deg);
+  }
+
   100% {
-    transform: rotateX(-90deg);
+    transform: rotateX(0deg);
   }
 }
 
 
-/* =========================
-   共通UI
-========================= */
-
-.label {
-  color: #9ca3af;
-  margin-bottom: 8px;
-}
-
-#status {
-  margin-top: 15px;
-  color: #d1d5db;
-}
+/* =================================
+   プログレスバー
+================================= */
 
 .progress {
   width: 100%;
@@ -272,33 +251,31 @@ h1 {
   width: 0%;
   height: 100%;
   background: #60a5fa;
-  transition: width 0.2s linear;
+  transition: width .2s linear;
 }
 
 #percent {
   color: #9ca3af;
-  font-size: 0.9rem;
+  font-size: .9rem;
 }
 
-.choice-title {
-  text-align: left;
-  margin-top: 24px;
-  margin-bottom: 8px;
-  color: #d1d5db;
-  font-size: 0.9rem;
-}
 
-.animation-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+/* =================================
+   ボタン
+================================= */
+
+.buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 22px;
 }
 
 button {
-  min-height: 48px;
+  flex: 1;
+  min-height: 50px;
   border: none;
   border-radius: 12px;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
 }
@@ -313,155 +290,445 @@ button {
 }
 
 .start {
-  width: 100%;
   background: #16a34a;
   color: white;
-  margin-top: 12px;
 }
 
 .reset {
   width: 100%;
+  margin-top: 12px;
   background: #4b5563;
   color: white;
-  margin-top: 10px;
 }
+
+
+/* =================================
+   右下の表示選択ボタン
+================================= */
+
+.display-menu {
+  position: absolute;
+  right: 15px;
+  bottom: 15px;
+}
+
+.display-button {
+  min-height: 42px;
+  padding: 8px 14px;
+  background: #374151;
+  color: white;
+  border: 1px solid #6b7280;
+  border-radius: 10px;
+  font-size: .85rem;
+}
+
+.display-panel {
+  display: none;
+  position: absolute;
+  right: 0;
+  bottom: 52px;
+  width: 235px;
+  padding: 12px;
+  background: #111827;
+  border: 1px solid #4b5563;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  z-index: 20;
+}
+
+.display-panel.open {
+  display: block;
+}
+
+.display-panel button {
+  width: 100%;
+  margin: 4px 0;
+  min-height: 42px;
+  background: #1f2937;
+  color: white;
+  text-align: left;
+  padding: 0 12px;
+}
+
+.display-panel button:hover {
+  background: #374151;
+}
+
+.test-button {
+  border-top: 1px solid #4b5563 !important;
+  margin-top: 10px !important;
+  padding-top: 8px;
+}
+
+
+/* =================================
+   情報
+================================= */
 
 .info {
-  margin-top: 18px;
-  font-size: 0.8rem;
+  margin-top: 17px;
   color: #9ca3af;
+  font-size: .82rem;
 }
 
-@media (max-width: 400px) {
-  .animation-buttons {
-    grid-template-columns: 1fr;
+@media (max-width: 450px) {
+
+  #display {
+    transform: scale(.82);
+  }
+
+  .timer {
+    padding-left: 8px;
+    padding-right: 8px;
   }
 }
 </style>
 </head>
 
+
 <body>
 
 <div class="container">
 
-  <h1>📚 授業終了カウンター</h1>
+<h1>📚 授業終了カウンター</h1>
 
-  <div class="timer">
+<div class="timer">
 
-    <div class="label">授業終了まで</div>
+  <div class="label">授業終了まで</div>
 
-    <div id="remaining">--:--</div>
+  <div id="display" class="digital">
 
-    <div id="status">
-      授業時間を選択してください
-    </div>
+    <div class="digits">
 
-    <div class="progress">
-      <div id="progressBar"></div>
-    </div>
+      <div class="digit" id="d1">0</div>
+      <div class="digit" id="d2">0</div>
 
-    <div id="percent">
-      進捗 0%
-    </div>
+      <div class="colon">:</div>
 
-
-    <!-- 授業時間 -->
-
-    <div class="choice-title">
-      授業時間
-    </div>
-
-    <div class="animation-buttons">
-
-      <button id="lesson50" class="lesson">
-        50分
-      </button>
-
-      <button id="lesson45" class="lesson">
-        45分
-      </button>
+      <div class="digit" id="d3">0</div>
+      <div class="digit" id="d4">0</div>
 
     </div>
 
+  </div>
 
-    <!-- 数字アニメーション -->
+  <div id="status">
+    授業時間を選択してください
+  </div>
 
-    <div class="choice-title">
-      数字表示
-    </div>
+  <div class="progress">
+    <div id="progressBar"></div>
+  </div>
 
-    <div class="animation-buttons">
+  <div id="percent">
+    進捗 0%
+  </div>
 
-      <button id="animLed" class="lesson">
-        電光掲示板
-      </button>
 
-      <button id="animDigital" class="lesson">
-        デジタルタイマー
-      </button>
+  <div class="buttons">
 
-      <button id="animGauge" class="lesson">
-        計器タイマー
-      </button>
+    <button id="lesson50" class="lesson">
+      50分
+    </button>
 
-      <button id="animForward" class="lesson">
-        前に倒れる
-      </button>
+    <button id="lesson45" class="lesson">
+      45分
+    </button>
 
-      <button id="animFlap" class="lesson">
-        パタパタ
-      </button>
+  </div>
 
-    </div>
 
+  <div class="buttons">
 
     <button id="start" class="start">
       授業開始
     </button>
 
-    <button id="reset" class="reset">
-      リセット
+  </div>
+
+
+  <button id="reset" class="reset">
+    リセット
+  </button>
+
+
+  <!-- 表示方式選択 -->
+
+  <div class="display-menu">
+
+    <button id="displayButton" class="display-button">
+      ⚙ 表示方式
     </button>
 
-    <div class="info">
-      電源OFF・ページを閉じても、再起動時に現在時刻から再計算します。
+    <div id="displayPanel" class="display-panel">
+
+      <button data-mode="led">
+        📟 電光掲示板
+      </button>
+
+      <button data-mode="digital">
+        🔢 デジタルタイマー
+      </button>
+
+      <button data-mode="gauge">
+        🎛️ 計器タイマー
+      </button>
+
+      <button data-mode="flip-front">
+        🔄 数字を前に倒す
+      </button>
+
+      <button data-mode="flap">
+        ⬇️ パタパタ
+      </button>
+
+      <button id="testAnimation" class="test-button">
+        ▶ 試験アニメーション
+      </button>
+
     </div>
 
   </div>
+
+
+  <div class="info">
+    電源OFF・ページを閉じても、再起動時に自動復元します。
+  </div>
+
+</div>
 
 </div>
 
 
 <script>
 
-const remaining = document.getElementById("remaining");
-const statusText = document.getElementById("status");
-const progressBar = document.getElementById("progressBar");
-const percentText = document.getElementById("percent");
+/* =================================
+   基本設定
+================================= */
 
-const lesson50 = document.getElementById("lesson50");
-const lesson45 = document.getElementById("lesson45");
+const display =
+  document.getElementById("display");
 
-const startButton = document.getElementById("start");
-const resetButton = document.getElementById("reset");
+const remaining =
+  document.getElementById("remaining");
 
-const animButtons = {
-  led: document.getElementById("animLed"),
-  digital: document.getElementById("animDigital"),
-  gauge: document.getElementById("animGauge"),
-  forward: document.getElementById("animForward"),
-  flap: document.getElementById("animFlap")
-};
+const statusText =
+  document.getElementById("status");
+
+const progressBar =
+  document.getElementById("progressBar");
+
+const percentText =
+  document.getElementById("percent");
+
+const lesson50 =
+  document.getElementById("lesson50");
+
+const lesson45 =
+  document.getElementById("lesson45");
+
+const startButton =
+  document.getElementById("start");
+
+const resetButton =
+  document.getElementById("reset");
+
+const displayButton =
+  document.getElementById("displayButton");
+
+const displayPanel =
+  document.getElementById("displayPanel");
+
+const testAnimation =
+  document.getElementById("testAnimation");
+
+const digits = [
+  document.getElementById("d1"),
+  document.getElementById("d2"),
+  document.getElementById("d3"),
+  document.getElementById("d4")
+];
 
 let selectedMinutes = null;
-let selectedAnimation = "digital";
 let timer = null;
-let previousDisplay = "";
+
+let lastDisplayValue = "";
 
 
-/* =========================
+/* =================================
+   表示方式
+================================= */
+
+let displayMode =
+  localStorage.getItem("displayMode") || "digital";
+
+
+function applyDisplayMode() {
+
+  display.className = "";
+
+  display.classList.add(displayMode);
+
+}
+
+
+applyDisplayMode();
+
+
+/* メニュー開閉 */
+
+displayButton.addEventListener("click", () => {
+
+  displayPanel.classList.toggle("open");
+
+});
+
+
+/* モード選択 */
+
+document
+.querySelectorAll("[data-mode]")
+.forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    displayMode =
+      button.dataset.mode;
+
+    localStorage.setItem(
+      "displayMode",
+      displayMode
+    );
+
+    applyDisplayMode();
+
+    displayPanel.classList.remove("open");
+
+    animateDigits();
+
+  });
+
+});
+
+
+/* =================================
+   数字表示
+================================= */
+
+function showTime(minutes, seconds) {
+
+  const text =
+    String(minutes).padStart(2, "0") +
+    String(seconds).padStart(2, "0");
+
+  digits.forEach((digit, index) => {
+
+    digit.textContent =
+      text[index];
+
+  });
+
+
+  if (text !== lastDisplayValue) {
+
+    animateDigits();
+
+    lastDisplayValue = text;
+
+  }
+
+}
+
+
+/* =================================
+   アニメーション
+================================= */
+
+function animateDigits() {
+
+  digits.forEach(digit => {
+
+    digit.classList.remove("animate");
+
+    /*
+      ブラウザに一度レイアウトを認識させて
+      アニメーションを再スタートする
+    */
+
+    void digit.offsetWidth;
+
+    if (
+      displayMode === "flip-front" ||
+      displayMode === "flap"
+    ) {
+
+      digit.classList.add("animate");
+
+    }
+
+  });
+
+}
+
+
+/* =================================
+   試験アニメーション
+================================= */
+
+testAnimation.addEventListener("click", () => {
+
+  displayPanel.classList.remove("open");
+
+  let count = 0;
+
+  const values = [
+    "5000",
+    "4959",
+    "4930",
+    "4500",
+    "3000",
+    "1000",
+    "0059",
+    "0000"
+  ];
+
+  function testStep() {
+
+    if (count >= values.length) {
+
+      return;
+
+    }
+
+    const value =
+      values[count];
+
+    digits.forEach((digit, index) => {
+
+      digit.textContent =
+        value[index];
+
+    });
+
+    animateDigits();
+
+    count++;
+
+    setTimeout(
+      testStep,
+      650
+    );
+
+  }
+
+  testStep();
+
+});
+
+
+/* =================================
    授業時間
-========================= */
+================================= */
 
 lesson50.addEventListener("click", () => {
 
@@ -483,268 +750,43 @@ lesson45.addEventListener("click", () => {
 });
 
 
-/* =========================
-   アニメーション選択
-========================= */
-
-Object.keys(animButtons).forEach(type => {
-
-  animButtons[type].addEventListener("click", () => {
-
-    selectedAnimation = type;
-
-    Object.values(animButtons).forEach(button => {
-      button.classList.remove("active");
-    });
-
-    animButtons[type].classList.add("active");
-
-    renderDisplay(
-      previousDisplay || "--:--",
-      true
-    );
-
-  });
-
-});
-
-
-/* =========================
-   パタパタ数字生成
-========================= */
-
-function createFlapDisplay(text) {
-
-  const wrapper = document.createElement("div");
-
-  wrapper.className = "flap-display";
-
-  for (const char of text) {
-
-    if (char === ":") {
-
-      const colon = document.createElement("div");
-
-      colon.style.fontSize = "clamp(3rem, 14vw, 5rem)";
-      colon.style.fontWeight = "800";
-      colon.textContent = ":";
-
-      wrapper.appendChild(colon);
-
-      continue;
-    }
-
-
-    const digit = document.createElement("div");
-
-    digit.className = "flap-digit";
-
-
-    const top = document.createElement("div");
-
-    top.className = "flap-top";
-
-
-    const topSpan = document.createElement("span");
-
-    topSpan.textContent = char;
-
-    top.appendChild(topSpan);
-
-
-    const bottom = document.createElement("div");
-
-    bottom.className = "flap-bottom";
-
-
-    const bottomSpan = document.createElement("span");
-
-    bottomSpan.textContent = char;
-
-    bottom.appendChild(bottomSpan);
-
-
-    const line = document.createElement("div");
-
-    line.className = "flap-line";
-
-
-    digit.appendChild(top);
-    digit.appendChild(bottom);
-    digit.appendChild(line);
-
-    wrapper.appendChild(digit);
-
-  }
-
-  return wrapper;
-}
-
-
-/* =========================
-   表示切り替え
-========================= */
-
-function renderDisplay(text, force = false) {
-
-  if (!force && text === previousDisplay) {
-    return;
-  }
-
-  previousDisplay = text;
-
-
-  /* 計器 */
-
-  if (selectedAnimation === "gauge") {
-
-    remaining.className = "gauge";
-
-    remaining.innerHTML = "";
-
-    const value = document.createElement("div");
-
-    value.className = "gauge-value";
-
-    value.textContent = text;
-
-    const needle = document.createElement("div");
-
-    needle.className = "gauge-needle";
-
-    const center = document.createElement("div");
-
-    center.className = "gauge-center";
-
-
-    let seconds = 0;
-
-    if (text !== "--:--") {
-
-      const parts = text.split(":");
-
-      if (parts.length === 2) {
-        seconds =
-          Number(parts[0]) * 60 +
-          Number(parts[1]);
-      }
-
-    }
-
-    const total =
-      Number(localStorage.getItem("classDuration") || 50) * 60;
-
-    const ratio =
-      Math.max(0, Math.min(1, seconds / total));
-
-    const angle =
-      -135 + (1 - ratio) * 270;
-
-    needle.style.transform =
-      "rotate(" + angle + "deg)";
-
-    remaining.appendChild(needle);
-    remaining.appendChild(center);
-    remaining.appendChild(value);
-
-    return;
-  }
-
-
-  /* パタパタ */
-
-  if (selectedAnimation === "flap") {
-
-    remaining.className = "";
-
-    const newDisplay =
-      createFlapDisplay(text);
-
-    remaining.replaceChildren(newDisplay);
-
-    requestAnimationFrame(() => {
-
-      newDisplay
-        .querySelectorAll(".flap-digit")
-        .forEach(digit => {
-
-          digit.classList.add("animating");
-
-        });
-
-    });
-
-    return;
-  }
-
-
-  /* 前に倒れる */
-
-  if (selectedAnimation === "forward") {
-
-    remaining.className =
-      "display-flip";
-
-    remaining.innerHTML =
-      '<span class="flip-number">' +
-      text +
-      '</span>';
-
-    return;
-  }
-
-
-  /* 電光掲示板 */
-
-  if (selectedAnimation === "led") {
-
-    remaining.className =
-      "display-led";
-
-    remaining.textContent =
-      text;
-
-    return;
-  }
-
-
-  /* デジタルタイマー */
-
-  remaining.className =
-    "display-digital";
-
-  remaining.textContent =
-    text;
-
-}
-
-
-/* =========================
-   タイマー
-========================= */
+/* =================================
+   タイマー計算
+================================= */
 
 function updateTimer() {
 
   const startTime =
-    Number(localStorage.getItem("classStartTime"));
+    Number(
+      localStorage.getItem("classStartTime")
+    );
 
   const duration =
-    Number(localStorage.getItem("classDuration"));
+    Number(
+      localStorage.getItem("classDuration")
+    );
 
 
   if (!startTime || !duration) {
 
-    renderDisplay("--:--");
+    showTime(0, 0);
 
     statusText.textContent =
       "授業時間を選択してください";
+
+    progressBar.style.width =
+      "0%";
+
+    percentText.textContent =
+      "進捗 0%";
 
     return;
 
   }
 
 
-  const now = Date.now();
+  const now =
+    Date.now();
 
   const durationMs =
     duration * 60 * 1000;
@@ -756,9 +798,11 @@ function updateTimer() {
     endTime - now;
 
 
+  /* 授業終了 */
+
   if (remainingMs <= 0) {
 
-    renderDisplay("00:00");
+    showTime(0, 0);
 
     statusText.textContent =
       "🎉 授業終了！";
@@ -771,28 +815,34 @@ function updateTimer() {
 
     clearInterval(timer);
 
+    timer = null;
+
     return;
 
   }
 
 
+  /* 残り秒数 */
+
   const totalSeconds =
-    Math.ceil(remainingMs / 1000);
+    Math.ceil(
+      remainingMs / 1000
+    );
+
 
   const minutes =
-    Math.floor(totalSeconds / 60);
+    Math.floor(
+      totalSeconds / 60
+    );
 
   const seconds =
     totalSeconds % 60;
 
 
-  const display =
-    String(minutes).padStart(2, "0")
-    + ":"
-    + String(seconds).padStart(2, "0");
-
-
-  renderDisplay(display);
+  showTime(
+    minutes,
+    seconds
+  );
 
 
   /* 進捗 */
@@ -814,17 +864,20 @@ function updateTimer() {
     progress + "%";
 
   percentText.textContent =
-    "進捗 " + progress.toFixed(1) + "%";
+    "進捗 " +
+    progress.toFixed(1) +
+    "%";
+
 
   statusText.textContent =
-    duration + "分授業";
-
+    duration +
+    "分授業";
 }
 
 
-/* =========================
+/* =================================
    授業開始
-========================= */
+================================= */
 
 startButton.addEventListener("click", () => {
 
@@ -839,13 +892,18 @@ startButton.addEventListener("click", () => {
   }
 
 
-  const startTime =
-    Date.now();
+  /*
+    開始時刻をミリ秒で保存。
 
+    ページを閉じても、
+    電源が切れても、
+    Date.now()との差から
+    正確な残り時間を再計算できる。
+  */
 
   localStorage.setItem(
     "classStartTime",
-    String(startTime)
+    String(Date.now())
   );
 
   localStorage.setItem(
@@ -859,14 +917,17 @@ startButton.addEventListener("click", () => {
   updateTimer();
 
   timer =
-    setInterval(updateTimer, 200);
+    setInterval(
+      updateTimer,
+      200
+    );
 
 });
 
 
-/* =========================
+/* =================================
    リセット
-========================= */
+================================= */
 
 resetButton.addEventListener("click", () => {
 
@@ -880,9 +941,9 @@ resetButton.addEventListener("click", () => {
 
   clearInterval(timer);
 
-  previousDisplay = "";
+  timer = null;
 
-  renderDisplay("--:--", true);
+  showTime(0, 0);
 
   statusText.textContent =
     "授業時間を選択してください";
@@ -896,9 +957,9 @@ resetButton.addEventListener("click", () => {
 });
 
 
-/* =========================
-   復元
-========================= */
+/* =================================
+   再起動時の復元
+================================= */
 
 function restoreTimer() {
 
@@ -915,10 +976,6 @@ function restoreTimer() {
 
   if (!savedStart || !savedDuration) {
 
-    animButtons.digital.classList.add("active");
-
-    renderDisplay("--:--", true);
-
     return;
 
   }
@@ -929,25 +986,33 @@ function restoreTimer() {
 
 
   if (selectedMinutes === 50) {
+
     lesson50.classList.add("active");
+
   }
 
   if (selectedMinutes === 45) {
+
     lesson45.classList.add("active");
+
   }
 
 
   updateTimer();
 
+
   timer =
-    setInterval(updateTimer, 200);
+    setInterval(
+      updateTimer,
+      200
+    );
 
 }
 
 
-/* 初期設定 */
-
-animButtons.digital.classList.add("active");
+/* =================================
+   起動
+================================= */
 
 restoreTimer();
 
