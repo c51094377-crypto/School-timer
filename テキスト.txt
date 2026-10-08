@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>授業終了カウンター</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #111827;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  width: min(92%, 520px);
+  text-align: center;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.timer {
+  background: #1f2937;
+  border-radius: 24px;
+  padding: 30px 20px;
+}
+
+.label {
+  color: #9ca3af;
+  margin-bottom: 8px;
+}
+
+#remaining {
+  font-size: clamp(4rem, 18vw, 7rem);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+#status {
+  margin-top: 15px;
+  color: #d1d5db;
+}
+
+.progress {
+  width: 100%;
+  height: 14px;
+  background: #374151;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 25px 0 10px;
+}
+
+#progressBar {
+  width: 0%;
+  height: 100%;
+  background: #60a5fa;
+  transition: width 0.2s linear;
+}
+
+#percent {
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+button {
+  flex: 1;
+  min-height: 50px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.lesson {
+  background: #374151;
+  color: white;
+}
+
+.lesson.active {
+  background: #2563eb;
+}
+
+.start {
+  background: #16a34a;
+  color: white;
+}
+
+.reset {
+  background: #4b5563;
+  color: white;
+  margin-top: 12px;
+}
+
+.info {
+  margin-top: 18px;
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>📚 授業終了カウンター</h1>
+
+  <div class="timer">
+
+    <div class="label">授業終了まで</div>
+
+    <div id="remaining">--:--</div>
+
+    <div id="status">
+      授業時間を選択してください
+    </div>
+
+    <div class="progress">
+      <div id="progressBar"></div>
+    </div>
+
+    <div id="percent">
+      進捗 0%
+    </div>
+
+    <div class="buttons">
+
+      <button id="lesson50" class="lesson">
+        50分
+      </button>
+
+      <button id="lesson45" class="lesson">
+        45分
+      </button>
+
+    </div>
+
+    <div class="buttons">
+
+      <button id="start" class="start">
+        授業開始
+      </button>
+
+    </div>
+
+    <button id="reset" class="reset">
+      リセット
+    </button>
+
+    <div class="info">
+      電源OFF・ページを閉じた場合でも、再起動時に現在時刻から自動計算します。
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+const remaining = document.getElementById("remaining");
+const statusText = document.getElementById("status");
+const progressBar = document.getElementById("progressBar");
+const percentText = document.getElementById("percent");
+
+const lesson50 = document.getElementById("lesson50");
+const lesson45 = document.getElementById("lesson45");
+const startButton = document.getElementById("start");
+const resetButton = document.getElementById("reset");
+
+let selectedMinutes = null;
+let timer = null;
+
+
+/* =========================
+   授業時間選択
+========================= */
+
+lesson50.addEventListener("click", () => {
+
+  selectedMinutes = 50;
+
+  lesson50.classList.add("active");
+  lesson45.classList.remove("active");
+
+});
+
+
+lesson45.addEventListener("click", () => {
+
+  selectedMinutes = 45;
+
+  lesson45.classList.add("active");
+  lesson50.classList.remove("active");
+
+});
+
+
+/* =========================
+   時刻計算
+========================= */
+
+function updateTimer() {
+
+  const startTime =
+    Number(localStorage.getItem("classStartTime"));
+
+  const duration =
+    Number(localStorage.getItem("classDuration"));
+
+  if (!startTime || !duration) {
+
+    remaining.textContent = "--:--";
+    statusText.textContent =
+      "授業時間を選択してください";
+
+    return;
+
+  }
+
+
+  const now = Date.now();
+
+  const durationMs =
+    duration * 60 * 1000;
+
+  const endTime =
+    startTime + durationMs;
+
+  const remainingMs =
+    endTime - now;
+
+
+  /* =========================
+     授業終了
+  ========================= */
+
+  if (remainingMs <= 0) {
+
+    remaining.textContent = "00:00";
+
+    statusText.textContent =
+      "🎉 授業終了！";
+
+    progressBar.style.width = "100%";
+
+    percentText.textContent =
+      "進捗 100%";
+
+    clearInterval(timer);
+
+    return;
+
+  }
+
+
+  /* =========================
+     残り時間
+  ========================= */
+
+  const totalSeconds =
+    Math.ceil(remainingMs / 1000);
+
+  const minutes =
+    Math.floor(totalSeconds / 60);
+
+  const seconds =
+    totalSeconds % 60;
+
+
+  remaining.textContent =
+    String(minutes).padStart(2, "0")
+    + ":"
+    + String(seconds).padStart(2, "0");
+
+
+  /* =========================
+     進捗率
+  ========================= */
+
+  const elapsed =
+    now - startTime;
+
+  const progress =
+    Math.min(
+      100,
+      Math.max(
+        0,
+        elapsed / durationMs * 100
+      )
+    );
+
+
+  progressBar.style.width =
+    progress + "%";
+
+  percentText.textContent =
+    "進捗 " + progress.toFixed(1) + "%";
+
+
+  statusText.textContent =
+    duration + "分授業";
+}
+
+
+/* =========================
+   授業開始
+========================= */
+
+startButton.addEventListener("click", () => {
+
+  if (!selectedMinutes) {
+
+    alert("45分または50分を選択してください。");
+
+    return;
+
+  }
+
+
+  const startTime = Date.now();
+
+
+  /*
+    現在時刻と授業時間を保存
+
+    Date.now()は1970年からの経過ミリ秒なので、
+    ページを閉じても時間そのものは失われない。
+  */
+
+  localStorage.setItem(
+    "classStartTime",
+    String(startTime)
+  );
+
+  localStorage.setItem(
+    "classDuration",
+    String(selectedMinutes)
+  );
+
+
+  clearInterval(timer);
+
+  updateTimer();
+
+  timer = setInterval(
+    updateTimer,
+    200
+  );
+
+});
+
+
+/* =========================
+   リセット
+========================= */
+
+resetButton.addEventListener("click", () => {
+
+  localStorage.removeItem("classStartTime");
+  localStorage.removeItem("classDuration");
+
+  clearInterval(timer);
+
+  remaining.textContent = "--:--";
+
+  statusText.textContent =
+    "授業時間を選択してください";
+
+  progressBar.style.width = "0%";
+
+  percentText.textContent =
+    "進捗 0%";
+
+});
+
+
+/* =========================
+   ページを開いた時
+========================= */
+
+function restoreTimer() {
+
+  const savedStart =
+    localStorage.getItem("classStartTime");
+
+  const savedDuration =
+    localStorage.getItem("classDuration");
+
+
+  if (!savedStart || !savedDuration) {
+
+    return;
+
+  }
+
+
+  selectedMinutes =
+    Number(savedDuration);
+
+
+  if (selectedMinutes === 50) {
+
+    lesson50.classList.add("active");
+
+  }
+
+  if (selectedMinutes === 45) {
+
+    lesson45.classList.add("active");
+
+  }
+
+
+  /*
+    保存された開始時刻と
+    現在時刻を比較して再計算
+  */
+
+  updateTimer();
+
+
+  timer = setInterval(
+    updateTimer,
+    200
+  );
+
+}
+
+
+/* 起動 */
+
+restoreTimer();
+
+</script>
+
+</body>
+</html>
